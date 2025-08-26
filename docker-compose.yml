@@ -72,17 +72,17 @@ services:
       - REACT_APP_ENABLE_FILTERS=true
     ports:
       - "3000:80"
-    depends_on:
-      backend:
-        condition: service_healthy
+    # depends_on:
+    #   backend:
+    #     condition: service_healthy
     networks:
       - work-request-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "-X", "GET", "http://178.128.54.249/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "-X", "GET", "http://178.128.54.249/health"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 40s
 
   # Redis (Optional - for session management)
   redis:
@@ -113,16 +113,16 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    depends_on:
-      - frontend
-      - backend
+    # depends_on:
+    #   - frontend
+    #   - backend
     networks:
       - work-request-network
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "--method=GET", "http://178.128.54.249/80"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    # healthcheck:
+    #   test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "--method=GET", "http://178.128.54.249/80"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
 
 volumes:
   postgres_data:
