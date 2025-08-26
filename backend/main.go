@@ -32,7 +32,7 @@ func main() {
 	log.Printf("Server starting on port %s", cfg.ServerPort)
 
 	// Start server - bind to all interfaces
-	err = router.Run(cfg.ServerHost + ":" + cfg.ServerPort)
+	err = router.Run(":" + cfg.ServerPort)
 	if err != nil {
 		log.Fatal("Failed to start server:", err)
 	}
