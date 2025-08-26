@@ -106,28 +106,7 @@ fi
 
 # Wait for PostgreSQL to be ready
 print_status "Waiting for PostgreSQL to be ready..."
-sleep 30
-
-# Check PostgreSQL health
-print_status "Checking PostgreSQL health..."
-retry_count=0
-max_retries=10
-
-while [ $retry_count -lt $max_retries ]; do
-    if docker exec work-request-postgres pg_isready -U work_request_user -d work_request_db >/dev/null 2>&1; then
-        print_success "PostgreSQL is healthy"
-        break
-    else
-        retry_count=$((retry_count + 1))
-        print_status "PostgreSQL not ready yet (attempt $retry_count/$max_retries)"
-        sleep 10
-    fi
-done
-
-if [ $retry_count -eq $max_retries ]; then
-    print_error "PostgreSQL failed to become healthy"
-    exit 1
-fi
+sleep 10
 
 # Start Backend
 print_status "Starting Backend..."
@@ -155,28 +134,7 @@ fi
 
 # Wait for Backend to be ready
 print_status "Waiting for Backend to be ready..."
-sleep 20
-
-# Check Backend health
-print_status "Checking Backend health..."
-retry_count=0
-max_retries=8
-
-while [ $retry_count -lt $max_retries ]; do
-    if curl -f -X GET "http://178.128.54.249:8080/health" >/dev/null 2>&1; then
-        print_success "Backend is healthy"
-        break
-    else
-        retry_count=$((retry_count + 1))
-        print_status "Backend not ready yet (attempt $retry_count/$max_retries)"
-        sleep 10
-    fi
-done
-
-if [ $retry_count -eq $max_retries ]; then
-    print_error "Backend failed to become healthy"
-    exit 1
-fi
+sleep 10
 
 # Start Frontend
 print_status "Starting Frontend..."
