@@ -1,0 +1,34 @@
+{
+  "name": "@web-work-request/backend",
+  "version": "1.0.0",
+  "description": "Go backend for Web Work Request application",
+  "private": true,
+  "scripts": {
+    "dev": "go run main.go",
+    "build": "go build -o web-work-request-backend.exe main.go",
+    "build:linux": "GOOS=linux GOARCH=amd64 go build -o web-work-request-backend main.go",
+    "build:mac": "GOOS=darwin GOARCH=amd64 go build -o web-work-request-backend main.go",
+    "test": "go test ./...",
+    "test:verbose": "go test -v ./...",
+    "test:coverage": "go test -cover ./...",
+    "clean": "go clean",
+    "mod:tidy": "go mod tidy",
+    "mod:download": "go mod download",
+    "mod:verify": "go mod verify",
+    "start": "go run main.go",
+    "start:prod": "./web-work-request-backend"
+  },
+  "engines": {
+    "go": ">=1.21.0"
+  },
+  "keywords": [
+    "golang",
+    "gin",
+    "postgresql",
+    "jwt",
+    "api",
+    "backend"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
