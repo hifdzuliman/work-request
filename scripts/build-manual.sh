@@ -171,8 +171,7 @@ print_status "Starting Nginx..."
 if docker run -d \
     --name work-request-nginx \
     --network work-request_work-request-network \
-    -v "$(pwd)/nginx/nginx.conf:/etc/nginx/nginx.conf:ro" \
-    -v "$(pwd)/nginx/conf.d:/etc/nginx/conf.d:ro" \
+    -v "$(pwd)/nginx/nginx-simple.conf:/etc/nginx/nginx.conf:ro" \
     -p 80:80 \
     -p 443:443 \
     nginx:alpine; then
