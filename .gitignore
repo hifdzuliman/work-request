@@ -22,7 +22,7 @@ build/
 .env.development.local
 .env.test.local
 .env.production.local
-config.env
+# config.env
 
 # Database files
 *.db
