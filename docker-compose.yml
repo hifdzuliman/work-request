@@ -7,9 +7,9 @@ services:
     container_name: work-request-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: work_request_db
-      POSTGRES_USER: work_request_user
-      POSTGRES_PASSWORD: work_request_password
+      POSTGRES_DB: granada-prod
+      POSTGRES_USER: granada
+      POSTGRES_PASSWORD: granadaheritage
       POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -20,7 +20,7 @@ services:
     networks:
       - work-request-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U work_request_user -d work_request_db"]
+      test: ["CMD-SHELL", "pg_isready -U granada -d granada-prod"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -38,13 +38,13 @@ services:
       - SERVER_HOST=178.128.54.249
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_USER=work_request_user
-      - DB_PASSWORD=work_request_password
-      - DB_NAME=work_request_db
+      - DB_USER=granada
+      - DB_PASSWORD=granadaheritage
+      - DB_NAME=granada-prod
       - DB_SSL_MODE=disable
       - JWT_SECRET=your_super_secret_jwt_key_change_in_production
       - JWT_EXPIRY=24h
-      - CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:80,http://frontend:80
+      - CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:80,http://frontend:80,http://178.128.54.249:3000
     ports:
       - "8080:8080"
     depends_on:
@@ -53,7 +53,7 @@ services:
     networks:
       - work-request-network
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://178.128.54.249:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -67,7 +67,7 @@ services:
     container_name: work-request-frontend
     restart: unless-stopped
     environment:
-      - REACT_APP_API_BASE_URL=http://localhost:8080/api
+      - REACT_APP_API_BASE_URL=http://178.128.54.249:8080/api
       - REACT_APP_ENABLE_NOTIFICATIONS=true
       - REACT_APP_ENABLE_EXPORT=true
       - REACT_APP_ENABLE_FILTERS=true
@@ -79,7 +79,7 @@ services:
     networks:
       - work-request-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      test: ["CMD", "curl", "-f", "http://178.128.54.249/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -120,7 +120,7 @@ services:
     networks:
       - work-request-network
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/80"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://178.128.54.249/80"]
       interval: 30s
       timeout: 10s
       retries: 3

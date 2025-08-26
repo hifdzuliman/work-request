@@ -14,7 +14,7 @@ dist/
 build/
 
 # Go module files
-go.sum
+# go.sum
 
 # Environment files
 .env
