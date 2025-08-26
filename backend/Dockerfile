@@ -7,8 +7,9 @@ WORKDIR /app
 # Install git and ca-certificates (needed for go mod download)
 RUN apk add --no-cache git ca-certificates
 
-# Copy go mod files
-COPY go.mod go.sum ./
+# Copy go mod files first for better caching
+COPY go.mod ./
+COPY go.sum ./
 
 # Download dependencies
 RUN go mod download
@@ -22,8 +23,8 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o work-request-serv
 # Final stage
 FROM alpine:latest
 
-# Install ca-certificates for HTTPS requests
-RUN apk --no-cache add ca-certificates
+# Install ca-certificates for HTTPS requests and wget for health check
+RUN apk --no-cache add ca-certificates wget
 
 # Create non-root user
 RUN addgroup -g 1001 -S appgroup && \
@@ -36,7 +37,7 @@ WORKDIR /app
 COPY --from=builder /app/work-request-server .
 
 # Copy any additional files (config, templates, etc.)
-COPY --from=builder /app/.env.example .env
+COPY --from=builder /app/config.env .env
 
 # Change ownership to non-root user
 RUN chown -R appuser:appgroup /app

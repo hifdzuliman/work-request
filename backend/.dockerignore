@@ -1,0 +1,95 @@
+# Exclude unnecessary files for backend build
+# But keep essential Go files
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+*.md
+docs/
+*.txt
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swp
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Build artifacts (but keep go.mod and go.sum)
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+.circleci/
+
+# Testing
+test/
+tests/
+__tests__/
+*.test.js
+*.spec.js
+
+# Frontend files (if any)
+node_modules/
+package*.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.cache
+.parcel-cache
+.next
+.nuxt
+dist
+build

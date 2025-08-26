@@ -35,7 +35,7 @@ services:
     restart: unless-stopped
     environment:
       - SERVER_PORT=8080
-      - SERVER_HOST=0.0.0.0
+      - SERVER_HOST=178.128.54.249
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USER=work_request_user
