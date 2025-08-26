@@ -45,8 +45,8 @@ USER appuser
 EXPOSE 80
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://178.128.54.249/ || exit 1
+# HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+#     CMD curl -f http://178.128.54.249/ || exit 1
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"]
