@@ -10,6 +10,7 @@ import (
 )
 
 func InitDB(cfg *config.Config) (*sql.DB, error) {
+	log.Println("Initializing database with config:", cfg)
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
 		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName, cfg.DBSSLMode)
 
