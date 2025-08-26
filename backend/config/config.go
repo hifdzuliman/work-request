@@ -16,6 +16,7 @@ type Config struct {
 	DBSSLMode  string
 	JWTSecret  string
 	JWTExpiry  string
+	ServerHost string
 	ServerPort string
 	ServerMode string
 	CORS       string
@@ -36,6 +37,7 @@ func Load() *Config {
 		DBSSLMode:  getEnv("DB_SSLMODE", "disable"),
 		JWTSecret:  getEnv("JWT_SECRET", "your-secret-key-here"),
 		JWTExpiry:  getEnv("JWT_EXPIRY", "24h"),
+		ServerHost: getEnv("SERVER_HOST", "0.0.0.0"),
 		ServerPort: getEnv("SERVER_PORT", "8080"),
 		ServerMode: getEnv("SERVER_MODE", "debug"),
 		CORS:       getEnv("CORS", "false"),

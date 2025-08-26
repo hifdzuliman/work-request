@@ -55,14 +55,14 @@ type Request struct {
 	TglPengembalian *time.Time `json:"tgl_pengembalian" db:"tgl_pengembalian"`
 
 	// Common fields
-	TglRequest    time.Time `json:"tgl_request" db:"tgl_request"`
-	Keterangan    *string   `json:"keterangan" db:"keterangan"`
-	StatusRequest string    `json:"status_request" db:"status_request"`
-	RequestedBy   string    `json:"requested_by" db:"requested_by"`
-	ApprovedBy    *string   `json:"approved_by" db:"approved_by"`
-	AcceptedBy    *string   `json:"accepted_by" db:"accepted_by"`
-	CreatedAt     time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at" db:"updated_at"`
+	TglRequest    *time.Time `json:"tgl_request" db:"tgl_request"`
+	Keterangan    *string    `json:"keterangan" db:"keterangan"`
+	StatusRequest string     `json:"status_request" db:"status_request"`
+	RequestedBy   string     `json:"requested_by" db:"requested_by"`
+	ApprovedBy    *string    `json:"approved_by" db:"approved_by"`
+	AcceptedBy    *string    `json:"accepted_by" db:"accepted_by"`
+	CreatedAt     time.Time  `json:"created_at" db:"created_at"`
+	UpdatedAt     time.Time  `json:"updated_at" db:"updated_at"`
 }
 
 // CreateRequestRequest represents the request to create a request

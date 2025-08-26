@@ -236,7 +236,7 @@ func (s *Service) CreateRequest(req *models.CreateRequestRequest, userID string)
 		Lokasi:          req.Lokasi,
 		JenisPekerjaan:  req.JenisPekerjaan,
 		Kegunaan:        req.Kegunaan,
-		TglRequest:      tglRequest,
+		TglRequest:      &tglRequest,
 		TglPeminjaman:   tglPeminjaman,
 		TglPengembalian: tglPengembalian,
 		Keterangan:      req.Keterangan,
