@@ -38,6 +38,10 @@ RUN chown -R appuser:appgroup /var/cache/nginx && \
     chown -R appuser:appgroup /etc/nginx/conf.d && \
     chown -R appuser:appgroup /usr/share/nginx/html
 
+# Create nginx runtime directories and set permissions
+RUN mkdir -p /run/nginx && \
+    chown -R appuser:appgroup /run/nginx
+
 # Switch to non-root user
 USER appuser
 
