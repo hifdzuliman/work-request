@@ -28,22 +28,14 @@ COPY --from=builder /app/build /usr/share/nginx/html
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Create non-root user
-RUN addgroup -g 1001 -S appgroup && \
-    adduser -u 1001 -S appuser -G appgroup
+# Create nginx runtime directories
+RUN mkdir -p /run/nginx /var/cache/nginx /var/log/nginx
 
-# Change ownership of nginx directories
-RUN chown -R appuser:appgroup /var/cache/nginx && \
-    chown -R appuser:appgroup /var/log/nginx && \
-    chown -R appuser:appgroup /etc/nginx/conf.d && \
-    chown -R appuser:appgroup /usr/share/nginx/html
+# Set proper permissions for nginx
+RUN chown -R nginx:nginx /var/cache/nginx /var/log/nginx /run/nginx /usr/share/nginx/html
 
-# Create nginx runtime directories and set permissions
-RUN mkdir -p /run/nginx && \
-    chown -R appuser:appgroup /run/nginx
-
-# Switch to non-root user
-USER appuser
+# Switch to nginx user (nginx image default user)
+USER nginx
 
 # Expose port
 EXPOSE 80
