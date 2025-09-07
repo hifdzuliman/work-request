@@ -28,21 +28,13 @@ COPY --from=builder /app/build /usr/share/nginx/html
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Create nginx runtime directories
-RUN mkdir -p /run/nginx /var/cache/nginx /var/log/nginx
-
-# Set proper permissions for nginx
-RUN chown -R nginx:nginx /var/cache/nginx /var/log/nginx /run/nginx /usr/share/nginx/html
-
-# Switch to nginx user (nginx image default user)
-USER nginx
+# Create nginx runtime directories with proper permissions
+RUN mkdir -p /run/nginx /var/cache/nginx /var/log/nginx && \
+    chmod 755 /run/nginx /var/cache/nginx /var/log/nginx && \
+    chown -R nginx:nginx /var/cache/nginx /var/log/nginx /usr/share/nginx/html
 
 # Expose port
 EXPOSE 80
 
-# Health check
-# HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-#     CMD curl -f http://178.128.54.249/ || exit 1
-
-# Start nginx
+# Start nginx as root (required for port 80 and PID file)
 CMD ["nginx", "-g", "daemon off;"]

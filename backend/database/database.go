@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 	"web-work-request-backend/config"
 
 	_ "github.com/lib/pq"
@@ -14,16 +15,34 @@ func InitDB(cfg *config.Config) (*sql.DB, error) {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
 		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName, cfg.DBSSLMode)
 
-	db, err := sql.Open("postgres", psqlInfo)
+	// Retry connection with backoff
+	var db *sql.DB
+	var err error
+	maxRetries := 10
+	retryDelay := 2 * time.Second
+
+	for i := 0; i < maxRetries; i++ {
+		db, err = sql.Open("postgres", psqlInfo)
+		if err != nil {
+			log.Printf("Failed to open database connection (attempt %d/%d): %v", i+1, maxRetries, err)
+			time.Sleep(retryDelay)
+			continue
+		}
+
+		if err = db.Ping(); err != nil {
+			log.Printf("Failed to ping database (attempt %d/%d): %v", i+1, maxRetries, err)
+			db.Close()
+			time.Sleep(retryDelay)
+			continue
+		}
+
+		log.Println("Successfully connected to database")
+		break
+	}
+
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to connect to database after %d attempts: %v", maxRetries, err)
 	}
-
-	if err = db.Ping(); err != nil {
-		return nil, err
-	}
-
-	log.Println("Successfully connected to database")
 
 	// Create tables if they don't exist
 	if err := createTables(db); err != nil {
