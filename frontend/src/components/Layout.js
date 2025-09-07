@@ -25,11 +25,11 @@ const Layout = ({ children }) => {
   };
 
   const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: Home, roles: ['pengguna', 'operator'] },
-    { name: 'Profil', href: '/profile', icon: User, roles: ['pengguna', 'operator'] },
-    { name: 'Pengajuan', href: '/pengajuan', icon: FileText, roles: ['pengguna', 'operator'] },
+    { name: 'Dashboard', href: '/dashboard', icon: Home, roles: ['user', 'operator'] },
+    { name: 'Profil', href: '/profile', icon: User, roles: ['user', 'operator'] },
+    { name: 'Pengajuan', href: '/pengajuan', icon: FileText, roles: ['user', 'operator'] },
     { name: 'Persetujuan', href: '/persetujuan', icon: CheckCircle, roles: ['operator'] },
-    { name: 'Riwayat', href: '/riwayat', icon: History, roles: ['pengguna', 'operator'] },
+    { name: 'Riwayat', href: '/riwayat', icon: History, roles: ['user', 'operator'] },
     { name: 'Pengguna', href: '/pengguna', icon: Users, roles: ['operator'] },
   ];
 

@@ -108,13 +108,24 @@ const Pengajuan = () => {
       };
 
       if (formData.jenis_request === 'pengadaan') {
-        // For pengadaan: use array fields
+        // For pengadaan: use array fields AND single fields for backward compatibility
+        const filteredNamaBarang = formData.nama_barang_array.filter(item => item.trim() !== '');
+        const filteredTypeModel = formData.type_model_array.filter(item => item.trim() !== '');
+        const filteredJumlah = formData.jumlah_array.filter((item, index) => formData.nama_barang_array[index].trim() !== '');
+        const filteredKeterangan = formData.keterangan_array.filter(item => item.trim() !== '');
+        
         requestData = {
           ...requestData,
-          nama_barang_array: formData.nama_barang_array.filter(item => item.trim() !== ''),
-          type_model_array: formData.type_model_array.filter(item => item.trim() !== ''),
-          jumlah_array: formData.jumlah_array.filter((item, index) => formData.nama_barang_array[index].trim() !== ''),
-          keterangan_array: formData.keterangan_array.filter(item => item.trim() !== '')
+          // Array fields
+          nama_barang_array: filteredNamaBarang,
+          type_model_array: filteredTypeModel,
+          jumlah_array: filteredJumlah,
+          keterangan_array: filteredKeterangan,
+          // Single fields for backward compatibility (use first item from arrays)
+          nama_barang: filteredNamaBarang[0] || '',
+          type_model: filteredTypeModel[0] || '',
+          jumlah: filteredJumlah[0] || 1,
+          lokasi: '' // Pengadaan doesn't have lokasi field
         };
       } else if (formData.jenis_request === 'perbaikan') {
         // For perbaikan: use array fields (new approach)

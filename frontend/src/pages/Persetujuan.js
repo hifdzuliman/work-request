@@ -41,7 +41,8 @@ const Persetujuan = () => {
       setLoading(true);
       setError(null);
       const response = await api.getAllRequests();
-      setRequests(response.data || response);
+      const data = response.data || response;
+      setRequests(data);
     } catch (error) {
       setError('Gagal memuat data pengajuan');
       console.error('Failed to load requests:', error);
@@ -159,6 +160,10 @@ const Persetujuan = () => {
 
   // Filter requests that need approval (DIAJUKAN status)
   const pendingRequests = Array.isArray(requests) ? requests.filter(req => req.status_request === 'DIAJUKAN') : [];
+  
+  // For debugging - show all requests
+  const [showAllRequests, setShowAllRequests] = useState(false);
+  const displayRequests = showAllRequests ? requests : pendingRequests;
 
   if (user?.role !== 'operator') {
     return (
@@ -179,12 +184,27 @@ const Persetujuan = () => {
       <NotificationContainer />
       <div className="space-y-6">
         {/* Header */}
+        <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Persetujuan Pengajuan</h1>
           <p className="mt-1 text-sm text-gray-500">
             Review dan approve pengajuan dari berbagai unit
           </p>
         </div>
+          <div className="flex space-x-2">
+            <button
+              onClick={() => setShowAllRequests(!showAllRequests)}
+              className={`px-3 py-1 text-xs font-medium rounded-md ${
+                showAllRequests 
+                  ? 'bg-blue-100 text-blue-800' 
+                  : 'bg-gray-100 text-gray-800'
+              }`}
+            >
+              {showAllRequests ? 'Show Pending Only' : 'Show All Requests'}
+            </button>
+          </div>
+        </div>
+
 
       {/* Stats */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
@@ -258,7 +278,7 @@ const Persetujuan = () => {
       <div className="bg-white shadow rounded-lg">
         <div className="px-4 py-5 sm:p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4">
-            Pengajuan Menunggu Persetujuan
+            {showAllRequests ? 'Semua Pengajuan' : 'Pengajuan Menunggu Persetujuan'}
           </h3>
 
           {loading ? (
@@ -266,12 +286,14 @@ const Persetujuan = () => {
               <Loader2 className="mx-auto h-8 w-8 animate-spin text-gray-400" />
               <p className="mt-2 text-sm text-gray-500">Memuat data...</p>
             </div>
-          ) : pendingRequests.length === 0 ? (
+          ) : displayRequests.length === 0 ? (
             <div className="text-center py-8">
               <CheckCircle className="mx-auto h-12 w-12 text-green-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">Tidak ada pengajuan</h3>
+              <h3 className="mt-2 text-sm font-medium text-gray-900">
+                {showAllRequests ? 'Tidak ada pengajuan' : 'Tidak ada pengajuan'}
+              </h3>
               <p className="mt-1 text-sm text-gray-500">
-                Semua pengajuan telah diproses.
+                {showAllRequests ? 'Belum ada pengajuan yang dibuat.' : 'Semua pengajuan telah diproses.'}
               </p>
             </div>
           ) : (
@@ -292,6 +314,9 @@ const Persetujuan = () => {
                       Pemohon
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Tanggal
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -300,7 +325,7 @@ const Persetujuan = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {pendingRequests.map((request) => (
+                  {displayRequests.map((request) => (
                     <tr key={request.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -329,6 +354,9 @@ const Persetujuan = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {request.requested_by}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {getStatusBadge(request.status_request)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {formatDate(request.tgl_request)}
@@ -407,96 +435,10 @@ const Persetujuan = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-500">Detail Barang</label>
                 <div className="mt-1 space-y-4">
-                  {/* Array-based display for new structure */}
-                  {selectedRequest.jenis_request === 'pengadaan' && selectedRequest.nama_barang_array && selectedRequest.nama_barang_array.length > 0 && (
-                    selectedRequest.nama_barang_array.map((item, index) => (
-                      <div key={index} className="bg-gray-50 p-4 rounded-md">
-                        <h4 className="text-sm font-medium text-gray-700 mb-3">Barang #{index + 1}</h4>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <span className="text-sm font-medium text-gray-500">Nama Barang:</span>
-                            <div className="text-sm text-gray-900">{item}</div>
-                          </div>
-                          <div>
-                            <span className="text-sm font-medium text-gray-500">Type/Model:</span>
-                            <div className="text-sm text-gray-900">{selectedRequest.type_model_array?.[index] || '-'}</div>
-                          </div>
-                          <div>
-                            <span className="text-sm font-medium text-gray-500">Jumlah:</span>
-                            <div className="text-sm text-gray-900">{selectedRequest.jumlah_array?.[index] || '-'}</div>
-                          </div>
-                          <div>
-                            <span className="text-sm font-medium text-gray-500">Keterangan:</span>
-                            <div className="text-sm text-gray-900">{selectedRequest.keterangan_array?.[index] || '-'}</div>
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  )}
-
-                  {selectedRequest.jenis_request === 'perbaikan' && selectedRequest.nama_barang_perbaikan_array && selectedRequest.nama_barang_perbaikan_array.length > 0 && (
-                    selectedRequest.nama_barang_perbaikan_array.map((item, index) => (
-                      <div key={index} className="bg-gray-50 p-4 rounded-md">
-                        <h4 className="text-sm font-medium text-gray-700 mb-3">Barang #{index + 1}</h4>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <span className="text-sm font-medium text-gray-500">Nama Barang:</span>
-                            <div className="text-sm text-gray-900">{item}</div>
-                          </div>
-                          <div>
-                            <span className="text-sm font-medium text-gray-500">Type/Model:</span>
-                            <div className="text-sm text-gray-900">{selectedRequest.type_model_perbaikan_array?.[index] || '-'}</div>
-                          </div>
-                          <div>
-                            <span className="text-sm font-medium text-gray-500">Jumlah:</span>
-                            <div className="text-sm text-gray-900">{selectedRequest.jumlah_perbaikan_array?.[index] || '-'}</div>
-                          </div>
-                          <div>
-                            <span className="text-sm font-medium text-gray-500">Jenis Pekerjaan:</span>
-                            <div className="text-sm text-gray-900">{selectedRequest.jenis_pekerjaan_array?.[index] || '-'}</div>
-                          </div>
-                          <div>
-                            <span className="text-sm font-medium text-gray-500">Lokasi:</span>
-                            <div className="text-sm text-gray-900">{selectedRequest.lokasi_perbaikan_array?.[index] || '-'}</div>
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  )}
-
-                  {selectedRequest.jenis_request === 'peminjaman' && selectedRequest.lokasi_peminjaman_array && selectedRequest.lokasi_peminjaman_array.length > 0 && (
-                    selectedRequest.lokasi_peminjaman_array.map((item, index) => (
-                      <div key={index} className="bg-gray-50 p-4 rounded-md">
-                        <h4 className="text-sm font-medium text-gray-700 mb-3">Lokasi #{index + 1}</h4>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <span className="text-sm font-medium text-gray-500">Lokasi:</span>
-                            <div className="text-sm text-gray-900">{item}</div>
-                          </div>
-                          <div>
-                            <span className="text-sm font-medium text-gray-500">Tanggal Peminjaman:</span>
-                            <div className="text-sm text-gray-900">
-                              {selectedRequest.tgl_peminjaman_array?.[index] ? formatDate(selectedRequest.tgl_peminjaman_array[index]) : '-'}
-                            </div>
-                          </div>
-                          <div>
-                            <span className="text-sm font-medium text-gray-500">Tanggal Pengembalian:</span>
-                            <div className="text-sm text-gray-900">
-                              {selectedRequest.tgl_pengembalian_array?.[index] ? formatDate(selectedRequest.tgl_pengembalian_array[index]) : '-'}
-                            </div>
-                          </div>
-                          <div>
-                            <span className="text-sm font-medium text-gray-500">Kegunaan:</span>
-                            <div className="text-sm text-gray-900">{selectedRequest.kegunaan_array?.[index] || '-'}</div>
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  )}
-
-                  {/* Legacy single field support for backward compatibility */}
-                  {(!selectedRequest.nama_barang_array && !selectedRequest.nama_barang_perbaikan_array && !selectedRequest.lokasi_peminjaman_array) && (
-                    <div className="bg-gray-50 p-4 rounded-md">
+                  {/* Pengadaan Request */}
+                  {selectedRequest.jenis_request === 'pengadaan' && (
+                    <div className="bg-blue-50 p-4 rounded-md">
+                      <h4 className="text-sm font-medium text-blue-700 mb-3">Detail Pengadaan</h4>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <span className="text-sm font-medium text-gray-500">Nama Barang:</span>
@@ -517,39 +459,63 @@ const Persetujuan = () => {
                       </div>
                     </div>
                   )}
+
+                  {/* Perbaikan Request */}
+                  {selectedRequest.jenis_request === 'perbaikan' && (
+                    <div className="bg-orange-50 p-4 rounded-md">
+                      <h4 className="text-sm font-medium text-orange-700 mb-3">Detail Perbaikan</h4>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <span className="text-sm font-medium text-gray-500">Nama Barang:</span>
+                          <div className="text-sm text-gray-900">{selectedRequest.nama_barang || '-'}</div>
+                        </div>
+                        <div>
+                          <span className="text-sm font-medium text-gray-500">Type/Model:</span>
+                          <div className="text-sm text-gray-900">{selectedRequest.type_model || '-'}</div>
+                        </div>
+                        <div>
+                          <span className="text-sm font-medium text-gray-500">Jumlah:</span>
+                          <div className="text-sm text-gray-900">{selectedRequest.jumlah || '-'}</div>
+                        </div>
+                        <div>
+                          <span className="text-sm font-medium text-gray-500">Lokasi:</span>
+                          <div className="text-sm text-gray-900">{selectedRequest.lokasi || '-'}</div>
+                        </div>
+                        <div>
+                          <span className="text-sm font-medium text-gray-500">Jenis Pekerjaan:</span>
+                          <div className="text-sm text-gray-900">{selectedRequest.jenis_pekerjaan || '-'}</div>
+                </div>
+              </div>
+                    </div>
+                  )}
+
+                  {/* Peminjaman Request */}
+                  {selectedRequest.jenis_request === 'peminjaman' && (
+                    <div className="bg-green-50 p-4 rounded-md">
+                      <h4 className="text-sm font-medium text-green-700 mb-3">Detail Peminjaman</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                          <span className="text-sm font-medium text-gray-500">Lokasi:</span>
+                          <div className="text-sm text-gray-900">{selectedRequest.lokasi || '-'}</div>
+                        </div>
+                        <div>
+                          <span className="text-sm font-medium text-gray-500">Tanggal Peminjaman:</span>
+                          <div className="text-sm text-gray-900">{formatDate(selectedRequest.tgl_peminjaman)}</div>
+                      </div>
+                      <div>
+                          <span className="text-sm font-medium text-gray-500">Tanggal Pengembalian:</span>
+                          <div className="text-sm text-gray-900">{formatDate(selectedRequest.tgl_pengembalian)}</div>
+                      </div>
+                        <div>
+                          <span className="text-sm font-medium text-gray-500">Kegunaan:</span>
+                          <div className="text-sm text-gray-900">{selectedRequest.kegunaan || '-'}</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Legacy single field support for backward compatibility */}
-              {(!selectedRequest.nama_barang_array && !selectedRequest.nama_barang_perbaikan_array && !selectedRequest.lokasi_peminjaman_array) && (
-                <>
-                  {selectedRequest.jenis_request === 'perbaikan' && selectedRequest.jenis_pekerjaan && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-500">Jenis Pekerjaan</label>
-                      <div className="mt-1 text-sm text-gray-900">{selectedRequest.jenis_pekerjaan}</div>
-                    </div>
-                  )}
-
-                  {selectedRequest.jenis_request === 'peminjaman' && (
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-500">Tanggal Peminjaman</label>
-                        <div className="mt-1 text-sm text-gray-900">{formatDate(selectedRequest.tgl_peminjaman)}</div>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-500">Tanggal Pengembalian</label>
-                        <div className="mt-1 text-sm text-gray-900">{formatDate(selectedRequest.tgl_pengembalian)}</div>
-                      </div>
-                      {selectedRequest.kegunaan && (
-                        <div className="col-span-2">
-                          <label className="block text-sm font-medium text-gray-500">Kegunaan</label>
-                          <div className="mt-1 text-sm text-gray-900">{selectedRequest.kegunaan}</div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </>
-              )}
 
               {/* Keterangan */}
               <div>

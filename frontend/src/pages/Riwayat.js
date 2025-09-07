@@ -28,6 +28,7 @@ const Riwayat = () => {
     filteredList, 
     loading, 
     error,
+    stats,
     loadRiwayatData, 
     refreshData, 
     filterData, 
@@ -186,6 +187,18 @@ const Riwayat = () => {
     }
   };
 
+  const handleTestAPI = async () => {
+    try {
+      console.log('Testing API connection...');
+      const response = await api.testConnection();
+      console.log('API test successful:', response);
+      showSuccess('API Test', 'Koneksi API berhasil!');
+    } catch (error) {
+      console.error('API test failed:', error);
+      showWarning('API Test Gagal', error.message);
+    }
+  };
+
   const getJenisRequestIcon = (jenis) => {
     switch (jenis) {
       case 'pengadaan':
@@ -278,6 +291,14 @@ const Riwayat = () => {
           <FileText className="h-4 w-4 mr-2" />
           Export CSV
         </button>
+        
+        <button
+          onClick={handleTestAPI}
+          className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          <Hash className="h-4 w-4 mr-2" />
+          Test API
+        </button>
       </div>
 
       {/* Filter Modal */}
@@ -360,6 +381,7 @@ const Riwayat = () => {
           </div>
         </div>
       )}
+
 
       {/* Riwayat List */}
       <div className="bg-white shadow rounded-lg">
@@ -532,99 +554,201 @@ const Riwayat = () => {
                 
                 {selectedRiwayat.jenis_request === 'pengadaan' && (
                   <div className="space-y-3">
-                    {selectedRiwayat.nama_barang_array?.map((item, itemIndex) => (
-                      <div key={itemIndex} className="border border-gray-200 rounded-lg p-4 space-y-2">
-                        <div className="grid grid-cols-3 gap-4 text-sm">
+                    {/* Array-based display for new structure */}
+                    {selectedRiwayat.nama_barang_array && selectedRiwayat.nama_barang_array.length > 0 && selectedRiwayat.nama_barang_array[0] && (
+                      selectedRiwayat.nama_barang_array.map((item, itemIndex) => (
+                        <div key={itemIndex} className="border border-gray-200 rounded-lg p-4 space-y-2">
+                          <div className="grid grid-cols-3 gap-4 text-sm">
+                            <div className="flex items-center space-x-2">
+                              <Package className="h-4 w-4 text-gray-400" />
+                              <span className="text-gray-500">Nama Barang:</span>
+                              <span className="text-gray-900">{item}</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Hash className="h-4 w-4 text-gray-400" />
+                              <span className="text-gray-500">Jumlah:</span>
+                              <span className="text-gray-900">{selectedRiwayat.jumlah_array?.[itemIndex] || '-'}</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <FileText className="h-4 w-4 text-gray-400" />
+                              <span className="text-gray-500">Keterangan:</span>
+                              <span className="text-gray-900">{selectedRiwayat.keterangan_array?.[itemIndex] || '-'}</span>
+                            </div>
+                          </div>
+                          {selectedRiwayat.type_model_array?.[itemIndex] && (
+                            <div className="text-sm text-gray-600">
+                              <span className="font-medium">Type/Model:</span> {selectedRiwayat.type_model_array[itemIndex]}
+                            </div>
+                          )}
+                        </div>
+                      ))
+                    )}
+                    
+                    {/* Single field display for backward compatibility */}
+                    {(!selectedRiwayat.nama_barang_array || selectedRiwayat.nama_barang_array.length === 0 || !selectedRiwayat.nama_barang_array[0]) && (
+                      <div className="border border-gray-200 rounded-lg p-4 space-y-2">
+                        <div className="grid grid-cols-2 gap-4 text-sm">
                           <div className="flex items-center space-x-2">
                             <Package className="h-4 w-4 text-gray-400" />
                             <span className="text-gray-500">Nama Barang:</span>
-                            <span className="text-gray-900">{item}</span>
+                            <span className="text-gray-900">{selectedRiwayat.nama_barang || '-'}</span>
                           </div>
                           <div className="flex items-center space-x-2">
                             <Hash className="h-4 w-4 text-gray-400" />
                             <span className="text-gray-500">Jumlah:</span>
-                            <span className="text-gray-900">{selectedRiwayat.jumlah_array?.[itemIndex] || '-'}</span>
+                            <span className="text-gray-900">{selectedRiwayat.jumlah || '-'}</span>
                           </div>
                           <div className="flex items-center space-x-2">
                             <FileText className="h-4 w-4 text-gray-400" />
-                            <span className="text-gray-500">Keterangan:</span>
-                            <span className="text-gray-900">{selectedRiwayat.keterangan_array?.[itemIndex] || '-'}</span>
+                            <span className="text-gray-500">Type/Model:</span>
+                            <span className="text-gray-900">{selectedRiwayat.type_model || '-'}</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <MapPin className="h-4 w-4 text-gray-400" />
+                            <span className="text-gray-500">Lokasi:</span>
+                            <span className="text-gray-900">{selectedRiwayat.lokasi || '-'}</span>
                           </div>
                         </div>
-                        {selectedRiwayat.type_model_array?.[itemIndex] && (
-                          <div className="text-sm text-gray-600">
-                            <span className="font-medium">Type/Model:</span> {selectedRiwayat.type_model_array[itemIndex]}
-                          </div>
-                        )}
                       </div>
-                    ))}
+                    )}
                   </div>
                 )}
 
                 {selectedRiwayat.jenis_request === 'perbaikan' && (
                   <div className="space-y-3">
-                    {selectedRiwayat.nama_barang_array?.map((item, itemIndex) => (
-                      <div key={itemIndex} className="border border-gray-200 rounded-lg p-4 space-y-2">
-                        <div className="grid grid-cols-3 gap-4 text-sm">
+                    {/* Array-based display for new structure */}
+                    {selectedRiwayat.nama_barang_array && selectedRiwayat.nama_barang_array.length > 0 && selectedRiwayat.nama_barang_array[0] && (
+                      selectedRiwayat.nama_barang_array.map((item, itemIndex) => (
+                        <div key={itemIndex} className="border border-gray-200 rounded-lg p-4 space-y-2">
+                          <div className="grid grid-cols-3 gap-4 text-sm">
+                            <div className="flex items-center space-x-2">
+                              <Package className="h-4 w-4 text-gray-400" />
+                              <span className="text-gray-500">Nama Barang:</span>
+                              <span className="text-gray-900">{item}</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Hash className="h-4 w-4 text-gray-400" />
+                              <span className="text-gray-500">Jumlah:</span>
+                              <span className="text-gray-900">{selectedRiwayat.jumlah_array?.[itemIndex] || '-'}</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Wrench className="h-4 w-4 text-gray-400" />
+                              <span className="text-gray-500">Jenis Pekerjaan:</span>
+                              <span className="text-gray-900">{selectedRiwayat.jenis_pekerjaan_array?.[itemIndex] || '-'}</span>
+                            </div>
+                          </div>
+                          {selectedRiwayat.type_model_array?.[itemIndex] && (
+                            <div className="text-sm text-gray-600">
+                              <span className="font-medium">Type/Model:</span> {selectedRiwayat.type_model_array[itemIndex]}
+                            </div>
+                          )}
+                          {selectedRiwayat.lokasi_array?.[itemIndex] && (
+                            <div className="text-sm text-gray-600">
+                              <span className="font-medium">Lokasi:</span> {selectedRiwayat.lokasi_array[itemIndex]}
+                            </div>
+                          )}
+                        </div>
+                      ))
+                    )}
+                    
+                    {/* Single field display for backward compatibility */}
+                    {(!selectedRiwayat.nama_barang_array || selectedRiwayat.nama_barang_array.length === 0 || !selectedRiwayat.nama_barang_array[0]) && (
+                      <div className="border border-gray-200 rounded-lg p-4 space-y-2">
+                        <div className="grid grid-cols-2 gap-4 text-sm">
                           <div className="flex items-center space-x-2">
                             <Package className="h-4 w-4 text-gray-400" />
                             <span className="text-gray-500">Nama Barang:</span>
-                            <span className="text-gray-900">{item}</span>
+                            <span className="text-gray-900">{selectedRiwayat.nama_barang || '-'}</span>
                           </div>
                           <div className="flex items-center space-x-2">
                             <Hash className="h-4 w-4 text-gray-400" />
                             <span className="text-gray-500">Jumlah:</span>
-                            <span className="text-gray-900">{selectedRiwayat.jumlah_array?.[itemIndex] || '-'}</span>
+                            <span className="text-gray-900">{selectedRiwayat.jumlah || '-'}</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <FileText className="h-4 w-4 text-gray-400" />
+                            <span className="text-gray-500">Type/Model:</span>
+                            <span className="text-gray-900">{selectedRiwayat.type_model || '-'}</span>
                           </div>
                           <div className="flex items-center space-x-2">
                             <Wrench className="h-4 w-4 text-gray-400" />
                             <span className="text-gray-500">Jenis Pekerjaan:</span>
-                            <span className="text-gray-900">{selectedRiwayat.jenis_pekerjaan_array?.[itemIndex] || '-'}</span>
+                            <span className="text-gray-900">{selectedRiwayat.jenis_pekerjaan || '-'}</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <MapPin className="h-4 w-4 text-gray-400" />
+                            <span className="text-gray-500">Lokasi:</span>
+                            <span className="text-gray-900">{selectedRiwayat.lokasi || '-'}</span>
                           </div>
                         </div>
-                        {selectedRiwayat.type_model_array?.[itemIndex] && (
-                          <div className="text-sm text-gray-600">
-                            <span className="font-medium">Type/Model:</span> {selectedRiwayat.type_model_array[itemIndex]}
-                          </div>
-                        )}
-                        {selectedRiwayat.lokasi_array?.[itemIndex] && (
-                          <div className="text-sm text-gray-600">
-                            <span className="font-medium">Lokasi:</span> {selectedRiwayat.lokasi_array[itemIndex]}
-                          </div>
-                        )}
                       </div>
-                    ))}
+                    )}
                   </div>
                 )}
 
                 {selectedRiwayat.jenis_request === 'peminjaman' && (
                   <div className="space-y-3">
-                    {selectedRiwayat.lokasi_array?.map((item, itemIndex) => (
-                      <div key={itemIndex} className="border border-gray-200 rounded-lg p-4 space-y-2">
+                    {/* Array-based display for new structure */}
+                    {selectedRiwayat.lokasi_array && selectedRiwayat.lokasi_array.length > 0 && selectedRiwayat.lokasi_array[0] && (
+                      selectedRiwayat.lokasi_array.map((item, itemIndex) => (
+                        <div key={itemIndex} className="border border-gray-200 rounded-lg p-4 space-y-2">
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div className="flex items-center space-x-2">
+                              <MapPin className="h-4 w-4 text-gray-400" />
+                              <span className="text-gray-500">Lokasi:</span>
+                              <span className="text-gray-900">{item}</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Calendar className="h-4 w-4 text-gray-400" />
+                              <span className="text-gray-500">Tanggal:</span>
+                              <span className="text-gray-900">
+                                {selectedRiwayat.tgl_peminjaman_array?.[itemIndex] && selectedRiwayat.tgl_pengembalian_array?.[itemIndex] 
+                                  ? `${new Date(selectedRiwayat.tgl_peminjaman_array[itemIndex]).toLocaleDateString('id-ID')} - ${new Date(selectedRiwayat.tgl_pengembalian_array[itemIndex]).toLocaleDateString('id-ID')}`
+                                  : '-'
+                                }
+                              </span>
+                            </div>
+                          </div>
+                          {selectedRiwayat.kegunaan_array?.[itemIndex] && (
+                            <div className="text-sm text-gray-600">
+                              <span className="font-medium">Kegunaan:</span> {selectedRiwayat.kegunaan_array[itemIndex]}
+                            </div>
+                          )}
+                        </div>
+                      ))
+                    )}
+                    
+                    {/* Single field display for backward compatibility */}
+                    {(!selectedRiwayat.lokasi_array || selectedRiwayat.lokasi_array.length === 0 || !selectedRiwayat.lokasi_array[0]) && (
+                      <div className="border border-gray-200 rounded-lg p-4 space-y-2">
                         <div className="grid grid-cols-2 gap-4 text-sm">
                           <div className="flex items-center space-x-2">
                             <MapPin className="h-4 w-4 text-gray-400" />
                             <span className="text-gray-500">Lokasi:</span>
-                            <span className="text-gray-900">{item}</span>
+                            <span className="text-gray-900">{selectedRiwayat.lokasi || '-'}</span>
                           </div>
                           <div className="flex items-center space-x-2">
                             <Calendar className="h-4 w-4 text-gray-400" />
-                            <span className="text-gray-500">Tanggal:</span>
+                            <span className="text-gray-500">Tanggal Peminjaman:</span>
                             <span className="text-gray-900">
-                              {selectedRiwayat.tgl_peminjaman_array?.[itemIndex] && selectedRiwayat.tgl_pengembalian_array?.[itemIndex] 
-                                ? `${new Date(selectedRiwayat.tgl_peminjaman_array[itemIndex]).toLocaleDateString('id-ID')} - ${new Date(selectedRiwayat.tgl_pengembalian_array[itemIndex]).toLocaleDateString('id-ID')}`
-                                : '-'
-                              }
+                              {selectedRiwayat.tgl_peminjaman ? new Date(selectedRiwayat.tgl_peminjaman).toLocaleDateString('id-ID') : '-'}
                             </span>
                           </div>
-                        </div>
-                        {selectedRiwayat.kegunaan_array?.[itemIndex] && (
-                          <div className="text-sm text-gray-600">
-                            <span className="font-medium">Kegunaan:</span> {selectedRiwayat.kegunaan_array[itemIndex]}
+                          <div className="flex items-center space-x-2">
+                            <Calendar className="h-4 w-4 text-gray-400" />
+                            <span className="text-gray-500">Tanggal Pengembalian:</span>
+                            <span className="text-gray-900">
+                              {selectedRiwayat.tgl_pengembalian ? new Date(selectedRiwayat.tgl_pengembalian).toLocaleDateString('id-ID') : '-'}
+                            </span>
                           </div>
-                        )}
+                          <div className="flex items-center space-x-2">
+                            <FileText className="h-4 w-4 text-gray-400" />
+                            <span className="text-gray-500">Kegunaan:</span>
+                            <span className="text-gray-900">{selectedRiwayat.kegunaan || '-'}</span>
+                          </div>
+                        </div>
                       </div>
-                    ))}
+                    )}
                   </div>
                 )}
               </div>

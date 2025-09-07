@@ -19,30 +19,44 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     // Check if user is logged in from localStorage
     const token = localStorage.getItem('token');
-    if (token) {
+    const userData = localStorage.getItem('user');
+    
+    if (token && userData) {
       // Prevent duplicate API calls
       let isMounted = true;
       
-      // Verify token with backend
-      api.getCurrentUser()
-        .then(userData => {
-          if (isMounted) {
-            setUser(userData);
-            setIsAuthenticated(true);
-          }
-        })
-        .catch(() => {
-          if (isMounted) {
-            // Token is invalid, clear it
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-          }
-        })
-        .finally(() => {
-          if (isMounted) {
-            setLoading(false);
-          }
-        });
+      try {
+        // Try to parse stored user data first
+        const parsedUser = JSON.parse(userData);
+        setUser(parsedUser);
+        setIsAuthenticated(true);
+        
+        // Verify token with backend in background (don't block UI)
+        api.getCurrentUser()
+          .then(verifiedUserData => {
+            if (isMounted) {
+              setUser(verifiedUserData);
+              localStorage.setItem('user', JSON.stringify(verifiedUserData));
+            }
+          })
+          .catch(() => {
+            if (isMounted) {
+              // Token is invalid, clear it
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              setUser(null);
+              setIsAuthenticated(false);
+            }
+          });
+      } catch (error) {
+        // Invalid user data, clear everything
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setUser(null);
+        setIsAuthenticated(false);
+      }
+      
+      setLoading(false);
       
       return () => {
         isMounted = false;

@@ -128,11 +128,11 @@ const Login = () => {
           <div className="mt-4 grid grid-cols-2 gap-3">
             <div className="text-center">
               <div className="text-xs font-medium text-gray-500">Operator</div>
-              <div className="text-xs text-gray-400">admin / admin</div>
+              <div className="text-xs text-gray-400">hifdzul / admin123</div>
             </div>
             <div className="text-center">
               <div className="text-xs font-medium text-gray-500">Pengguna</div>
-              <div className="text-xs text-gray-400">user / user</div>
+              <div className="text-xs text-gray-400">testuser / test123</div>
             </div>
           </div>
         </div>

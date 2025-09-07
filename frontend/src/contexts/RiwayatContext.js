@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import api from '../services/api';
+import { useAuth } from './AuthContext';
 
 const RiwayatContext = createContext();
 
@@ -12,6 +13,7 @@ export const useRiwayatContext = () => {
 };
 
 export const RiwayatProvider = ({ children }) => {
+  const { user } = useAuth();
   const [riwayatList, setRiwayatList] = useState([]);
   const [filteredList, setFilteredList] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -41,12 +43,17 @@ export const RiwayatProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       
+      console.log('Loading riwayat data...');
+      
       // Call actual API
       const response = await api.getAllRequests();
+      console.log('API Response:', response);
+      
       const data = response.data || [];
+      console.log('Data from API:', data);
       
       // Transform data to match frontend expectations
-      const transformedData = data.map(item => ({
+      let transformedData = data.map(item => ({
         id: item.id,
         jenis_request: item.jenis_request,
         unit: item.unit,
@@ -64,8 +71,20 @@ export const RiwayatProvider = ({ children }) => {
         tgl_pengembalian: item.tgl_pengembalian,
         keterangan: item.keterangan,
         created_at: item.created_at,
-        updated_at: item.updated_at
+        updated_at: item.updated_at,
+        // Keep original requested_by for filtering
+        requested_by: item.requested_by
       }));
+      
+      // Filter by user if role is 'user'
+      if (user?.role === 'user') {
+        transformedData = transformedData.filter(item => 
+          item.requested_by === user.name || item.requested_by === user.username
+        );
+        console.log('Filtered data for user role:', transformedData);
+      }
+      
+      console.log('Transformed data:', transformedData);
       
       setRiwayatList(transformedData);
       setFilteredList(transformedData);
@@ -79,10 +98,12 @@ export const RiwayatProvider = ({ children }) => {
       };
       setStats(statsData);
       
+      console.log('Stats calculated:', statsData);
+      
       return transformedData;
     } catch (error) {
       console.error('Failed to load riwayat data:', error);
-      setError('Gagal memuat data riwayat');
+      setError('Gagal memuat data riwayat: ' + error.message);
       
       // Set empty arrays on error
       setRiwayatList([]);
@@ -93,7 +114,7 @@ export const RiwayatProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user]);
 
   // Refresh data
   const refreshData = useCallback(async () => {

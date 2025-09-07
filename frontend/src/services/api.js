@@ -24,15 +24,24 @@ class ApiService {
       ...options
     };
 
+    console.log('Making API request to:', url);
+    console.log('Request config:', config);
+
     try {
       const response = await fetch(url, config);
       
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+      
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.error('API Error:', errorData);
         throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
 
-      return await response.json();
+      const data = await response.json();
+      console.log('API Response data:', data);
+      return data;
     } catch (error) {
       console.error('API request failed:', error);
       throw error;
@@ -123,6 +132,19 @@ class ApiService {
   // Health check
   async healthCheck() {
     return this.request('/health');
+  }
+
+  // Test API connection
+  async testConnection() {
+    try {
+      const response = await fetch(`${this.baseURL.replace('/api', '')}/health`);
+      const data = await response.json();
+      console.log('Health check response:', data);
+      return data;
+    } catch (error) {
+      console.error('Health check failed:', error);
+      throw error;
+    }
   }
 
   // Dashboard methods
